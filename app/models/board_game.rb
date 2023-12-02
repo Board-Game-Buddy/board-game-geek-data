@@ -1,0 +1,3 @@
+class BoardGame < ApplicationRecord
+  
+end
