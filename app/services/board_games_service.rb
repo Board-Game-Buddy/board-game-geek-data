@@ -11,6 +11,7 @@ class BoardGamesService
   def conn
     Faraday.new(url: "https://boardgamegeek.com/xmlapi2/") do |f|
       f.headers["Content-Type"] = "application/xml"
+      f.options[:timeout] = 50000
     end
   end
 end
