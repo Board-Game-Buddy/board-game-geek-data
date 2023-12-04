@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_12_01_202526) do
+ActiveRecord::Schema[7.0].define(version: 2023_12_01_215914) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -28,6 +28,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_01_202526) do
     t.float "rating"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "year_published"
+    t.integer "rank"
+    t.integer "abstracts_rank"
+    t.integer "cgs_rank"
+    t.integer "childrens_games_rank"
+    t.integer "family_games_rank"
+    t.integer "party_games_rank"
+    t.integer "strategy_games_rank"
+    t.integer "thematic_rank"
+    t.integer "wargames_rank"
   end
 
 end
