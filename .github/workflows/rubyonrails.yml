@@ -39,11 +39,16 @@ jobs:
           node-version: '16.13'
 
       - name: Wait for DB
-        uses: docker/wait-for-service@v1
-        with:
-          host: localhost
-          port: 5432
-          timeout: 1m
+        run: |
+          timeout=60
+          while ! pg_isready -h localhost -p 5432 -q -t 1; do
+            sleep 1
+            timeout=$((timeout - 1))
+            if [ $timeout -eq 0 ]; then
+              echo "Timed out waiting for PostgreSQL to start."
+              exit 1
+            fi
+          done
 
       - name: Database setup
         run: bin/rails db:{create,migrate} --trace
