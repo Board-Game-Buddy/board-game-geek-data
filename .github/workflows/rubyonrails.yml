@@ -11,34 +11,47 @@ on:
   pull_request:
     branches: [ "main" ]
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:11-alpine
+        image: postgres:14.9
         ports:
           - "5432:5432"
         env:
           POSTGRES_DB: board_game_geek_data_test
-          POSTGRES_USER: rails
-          POSTGRES_PASSWORD: password
-    env:
-      RAILS_ENV: test
-      DATABASE_URL: "127.0.0.1"
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      # Add or replace dependency steps here
-      - name: Install Ruby and gems
-        uses: ruby/setup-ruby@55283cc23133118229fd3f97f9336ee23a179fcf # v1.146.0
+
+      - name: Set up Ruby
+        uses: actions/setup-ruby@v2
         with:
-          bundler-cache: true
-      # Add or replace database setup steps here
-      - name: Set up database schema
-        run: bin/rails db:{create,migrate}
-      # Add or replace test runners here
-      - name: Run tests
+          ruby-version: 3.2.2
+
+      - name: Force Bundler Version
+        run: |
+          export BUNDLER_VERSION=$(cat Gemfile.lock | tail -1 | tr -d " ")
+          gem install bundler -v $BUNDLER_VERSION
+
+      - name: Bundle Install
+        run: bundle install
+
+      - name: Wait for DB
+        run: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - name: Database setup
+        run: bin/rails db:{create,migrate} --trace
+
+      - name: Run rspec in parallel
         run: bundle exec rspec
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: test_results
 
   # lint:
   #   runs-on: ubuntu-latest
