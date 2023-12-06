@@ -33,6 +33,14 @@ jobs:
           ruby-version: '3.2.2'
           bundler-cache: true
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16.13'
+
+      - name: Wait for DB
+        run: dockerize -wait tcp://localhost:5432 -timeout 1m
+
       - name: Database setup
         run: bin/rails db:{create,migrate} --trace
 
