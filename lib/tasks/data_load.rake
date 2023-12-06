@@ -14,6 +14,16 @@ namespace :fill_database do
     game_ids = BoardGame.all.pluck(:bgg_id).sort
     board_games = BoardGamesFacade.new.get_board_games(game_ids)
   end
+
+  desc "load board game middleman data from csv"
+  task board_games_middleman_csv: :environment do
+    board_games = CSV.open "./db/data/board_game_middleman_api_data.csv", headers: true, header_converters: :symbol
+    board_games.each do |board_game|
+      BoardGame.create!(id: board_game[:id], bgg_id: board_game[:bgg_id], title: board_game[:title], image_path: board_game[:image_path], min_players: board_game[:min_players], max_players: board_game[:max_players], min_playtime: board_game[:min_playtime], max_playtime: board_game[:max_playtime], categories: board_game[:categories], cooperative: board_game[:cooperative], description: board_game[:description], rating: board_game[:rating], created_at: board_game[:created_at], updated_at: board_game[:updated_at], year_published: board_game[:year_published], rank: board_game[:rank], abstracts_rank: board_game[:abstracts_rank], cgs_rank: board_game[:cgs_rank], childrens_games_rank: board_game[:childrens_games_rank], family_games_rank: board_game[:family_games_rank], party_games_rank: board_game[:party_games_rank], strategy_games_rank: board_game[:strategy_games_rank], thematic_rank: board_game[:thematic_rank], wargames_rank: board_game[:wargames_rank])
+    end
+
+    ActiveRecord::Base.connection.execute("ALTER SEQUENCE board_games_id_seq RESTART WITH #{BoardGame.maximum(:id).to_i+1}")
+  end
 end
 
 namespace :export do
