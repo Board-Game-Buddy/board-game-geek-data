@@ -1,6 +1,5 @@
 class Api::V1::BoardGamesController < ApplicationController
   def index
-    ### Isn't this the one where we're goign to have all the filtering? - oh youre so right my b
     render json: BoardGamesSerializer.new(filter(params))
   end
 
