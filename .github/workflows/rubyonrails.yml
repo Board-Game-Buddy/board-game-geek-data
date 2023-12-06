@@ -25,20 +25,13 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
-
-      - name: Force Bundler Version
-        run: |
-          export BUNDLER_VERSION=$(cat Gemfile.lock | tail -1 | tr -d " ")
-          gem install bundler -v $BUNDLER_VERSION
-
-      - name: Bundle Install
-        run: bundle install
+          bundler-cache: true
 
       - name: Wait for DB
         run: dockerize -wait tcp://localhost:5432 -timeout 1m
