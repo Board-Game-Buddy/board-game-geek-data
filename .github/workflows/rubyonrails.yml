@@ -30,7 +30,7 @@ jobs:
       - name: Set up Ruby
         uses: actions/setup-ruby@v1
         with:
-          ruby-version: 3.2
+          ruby-version: '3.2.2'
 
       - name: Force Bundler Version
         run: |
