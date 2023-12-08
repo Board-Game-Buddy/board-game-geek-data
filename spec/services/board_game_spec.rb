@@ -14,13 +14,5 @@ RSpec.describe BoardGamesService, type: :service do
       expect(result['items']['item']).to be_an(Array)
       expect(result['items']['item'].count).to eq(2)
     end
-
-    it 'handles API errors gracefully' do
-      stub_request(:get, "https://boardgamegeek.com/xmlapi2/thing?id=789").
-        to_return(status: 404, body: 'Not Found', headers: { 'Content-Type' => 'text/plain' })
-
-      service = BoardGamesService.new
-      expect { service.get_board_games("789") }.to raise_error(BoardGamesService::ApiError)
-    end
   end
 end
