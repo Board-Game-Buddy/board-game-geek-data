@@ -16,7 +16,13 @@ RSpec.describe BoardGamesFacade, type: :facade do
       )
       allow(BoardGame).to receive(:find_by).and_return(nil)
 
-      expect(BoardGamesService).to receive_message_chain(:new, :get_board_games).with("123").and_call_original
+      expect(BoardGamesService).to receive_message_chain(:new, :get_board_games).with("123").and_return(
+        "items" => {
+          "item" => [
+            { "id" => "123", "minplayers" => { "value" => "2" }, "maxplayers" => { "value" => "4" }, "minplaytime" => { "value" => "30" }, "maxplaytime" => { "value" => "60" }, "link" => [{ "type" => "boardgamecategory", "value" => "Strategy" }] }
+          ]
+        }
+      )
 
       @facade.get_board_games(["123"])
 
