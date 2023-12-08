@@ -8,6 +8,12 @@ class Api::V1::BoardGamesController < ApplicationController
     render json: BoardGamesSerializer.new(BoardGame.find(params[:id]))
   end
 
+  def multi_games
+    ids = params[:ids]
+    boardgames = BoardGame.where(id: ids)
+    render json: BoardGamesSerializer.new(boardgames)
+  end
+
   private
   
   def filter(params)
@@ -47,4 +53,6 @@ class Api::V1::BoardGamesController < ApplicationController
   # def top_20_by_rank
   #   where('rank > 0').order(:rank).limit(20)
   # end
+
+
 end
