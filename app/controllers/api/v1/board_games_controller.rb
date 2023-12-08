@@ -14,8 +14,8 @@ class Api::V1::BoardGamesController < ApplicationController
     render json: BoardGamesSerializer.new(boardgames)
   end
 
-  def search_by_params
-    boardgames = find_by_params(params)
+  def all_by_params
+    boardgames = filter_by_params(params)
     render json: BoardGamesSerializer.new(boardgames)
   end
 
@@ -44,11 +44,11 @@ class Api::V1::BoardGamesController < ApplicationController
   end
 
   def find_2_player_games
-    BoardGame.where(min_players: 2, max_players: 2).where('rank > 0').order(:rank).limit(20)
+    BoardGame.where(min_players: 2, max_players: 2).order(:rank).limit(20)
   end
 
   def find_by_min_players(min_players)
-    BoardGame.where("min_players >= ?", min_players).where('rank > 0').order(:rank).limit(20)
+    BoardGame.where("min_players >= ?", min_players).order(:rank).limit(20)
   end
 
   def find_top_ranked
@@ -59,7 +59,7 @@ class Api::V1::BoardGamesController < ApplicationController
   #   where('rank > 0').order(:rank).limit(20)
   # end
 
-  def find_by_params(params)
+  def filter_by_params(params)
     # require 'pry';binding.pry
     categories = params[:categories]
     min_players = params[:min_players]
@@ -69,9 +69,10 @@ class Api::V1::BoardGamesController < ApplicationController
     board_games = board_games.where('min_players >= ?', min_players) if min_players
     board_games = board_games.where('max_players <= ?', max_players) if max_players
     board_games = board_games.where(cooperative: true) if cooperative
-    # board_games = board_games.where('categories', min_players) if min_players
+    categories.split(',').each do |category|
+      board_games = board_games.where("categories ILIKE ?", "%#{category}%")
+    end if categories
 
-    board_games.where('rank > 0').order(:rank)
+    board_games.order(:rank).limit(20)
   end
-
 end
