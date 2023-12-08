@@ -73,6 +73,6 @@ class Api::V1::BoardGamesController < ApplicationController
       board_games = board_games.where("categories ILIKE ?", "%#{category}%")
     end if categories
 
-    board_games.order(:rank).limit(20)
+    board_games.order(:rank).paginate(page: params[:page])
   end
 end
