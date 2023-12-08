@@ -5,10 +5,10 @@ Rails.application.routes.draw do
   # root "articles#index"
   namespace :api do
     namespace :v1 do
-      resources :board_games, only: [:index, :show]
+      resources :board_games, only: [:show]
+      get '/board_games', to: '/api/v1/board_games#carousel'
     end
   end
   
   get '/api/v1/multi_board_games', to: 'api/v1/board_games#multi_games'
-
 end
