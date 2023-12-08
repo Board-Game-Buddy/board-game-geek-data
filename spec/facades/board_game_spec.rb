@@ -35,7 +35,7 @@ RSpec.describe BoardGamesFacade, type: :facade do
       expect(BoardGamesService).not_to receive(:new)
 
       @facade.get_board_games(["456"])
-    end.
+    end
   end
 
   describe '#game_categories' do
