@@ -1,5 +1,5 @@
 class Api::V1::BoardGamesController < ApplicationController
-  def index
+  def carousel
     render json: BoardGamesSerializer.new(filter(params))
   end
 
@@ -17,17 +17,15 @@ class Api::V1::BoardGamesController < ApplicationController
   private
   
   def filter(params)
-    if params[:category]
+    if params[:subcategory]
       # find games by ranked category
-      find_by_ranked_category(params[:category])
-    elsif params[:min_players]
-      if params[:max_players] == '2'
-        # find 2 player games
-        find_2_player_games
-      else
-        #find by min players
-        find_by_min_players(params[:min_players])
-      end
+      find_by_ranked_category(params[:subcategory])
+    elsif params[:cooperative]
+      # find cooperative games
+      find_cooperative_games
+    elsif params[:max_players] == '2'
+      # find 2 player games
+      find_2_player_games
     else
       # find top ranked games
       find_top_ranked
@@ -36,6 +34,10 @@ class Api::V1::BoardGamesController < ApplicationController
 
   def find_by_ranked_category(category)
     BoardGame.order(category.to_sym).limit(20)
+  end
+
+  def find_cooperative_games
+    BoardGame.where(cooperative: true).where('rank > 0').order(:rank).limit(20)
   end
 
   def find_2_player_games
