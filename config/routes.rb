@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   # root "articles#index"
   namespace :api do
     namespace :v1 do
+      get "/board_games/search_by_params", to: "board_games#search_by_params"
+      
       resources :board_games, only: [:index, :show]
     end
   end
