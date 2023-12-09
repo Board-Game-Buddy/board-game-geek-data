@@ -26,34 +26,60 @@ RSpec.describe Api::V1::BoardGamesController, type: :controller do
           )
         end
       end
+
+      it 'returns a list of cooperative games' do
+        cooperative_game = create(:board_game, cooperative: true, rank: 1)
+        non_cooperative_game = create(:board_game, cooperative: false, rank: 2)
+
+        get :carousel, params: { cooperative: 'true' }
+
+        response_data = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(response_data['data']).to be_an(Array)
+        expect(response_data['data'].count).to eq(1)
+        expect(response_data['data'][0]['attributes']['rank']).to eq(cooperative_game.rank)
+      end
+
+    # dunno about this one
+    #   it 'returns a 400 status with an error message' do
+    #     allow_any_instance_of(Api::V1::BoardGamesController)
+    #       .to receive(:find_by_ranked_category)
+    #       .and_raise(ActiveRecord::StatementInvalid.new('Simulated error'))
+    
+    #     get :carousel, params: { subcategory: 1 }
+    
+    #     expect(response).to have_http_status(:bad_request)
+    #     expect(JSON.parse(response.body)).to eq({ 'error' => 'Unexpected Parameter Value', 'status' => 400 })
+    #   end
+    
     end
 
-    # this could use some work to be a little cleaner, maybe use a different factory setup
     context 'when filtering by ranked category' do
       it 'returns board games based on the specified ranked category' do
         create(:board_game, party_games_rank: 1)
         create(:board_game, party_games_rank: 2)
         create(:board_game, party_games_rank: 3)
         create_list(:board_game, 3, party_games_rank: nil)
-        
+
         get :carousel, params: { subcategory: 'party_games_rank' }
-        
+
         response_data = JSON.parse(response.body)
-        
+
         expect(response).to have_http_status(:ok)
         expect(response_data['data']).to be_an(Array)
-        
+
         non_nil_party_games = response_data['data'].select { |game| game['attributes']['party_games_rank'].present? }
-        
+
         expect(non_nil_party_games.count).to eq(3)
       end
     end
 
-    xcontext 'when filtering for 2 player games' do
+    context 'when filtering for 2 player games' do
       it 'returns board games suitable for 2 players' do
-        create_list(:board_game, 10, min_players: 2, max_players: 2)
+        create_list(:board_game, 10, max_players: 2)
 
-        get :carousel, params: { min_players: '2', max_players: '2' }
+        get :carousel, params: { max_players: '2' }
 
         response_data = JSON.parse(response.body)
 
@@ -62,22 +88,38 @@ RSpec.describe Api::V1::BoardGamesController, type: :controller do
       end
     end
 
-    xcontext 'when filtering by minimum players' do
-      it 'returns board games based on the specified minimum players' do
-        create_list(:board_game, 5, min_players: 2)
-        create_list(:board_game, 10, min_players: 3)
-        create_list(:board_game, 5, min_players: 4)
-    
-        get :carousel, params: { min_players: '3' }
-    
-        response_data = JSON.parse(response.body)
-    
-        expect(response).to have_http_status(:ok)
-        expect(response_data['data']).to be_an(Array)
-        expect(response_data['data'].count).to eq(15)
+    # this useage doesnt exist anymore
+    # context 'when filtering by minimum players' do
+    #   it 'returns board games based on the specified minimum players' do
+    #     create_list(:board_game, 5, min_players: 2)
+    #     create_list(:board_game, 10, min_players: 3)
+    #     create_list(:board_game, 5, min_players: 4)
+
+    #     get :carousel, params: { min_players: '2' }
+
+    #     response_data = JSON.parse(response.body)
+
+    #     expect(response).to have_http_status(:ok)
+    #     expect(response_data['data']).to be_an(Array)
+    #     expect(response_data['data'].count).to eq(15)
+    #   end
+    # end
+
+    context 'issue with parameters' do
+      it 'returns a 404 status with an error message' do
+        get :carousel, params: { unexpected_param: 'value' }
+
+        expect(response).to have_http_status(:not_found)
+        expect(JSON.parse(response.body)).to eq({ 'error' => 'Unexpected Parameters', 'status' => 404 })
+      end
+      
+      it 'returns a 400 status with an error message' do
+        get :carousel, params: { max_players: 'a' }
+
+        expect(response).to have_http_status(:bad_request)
+        expect(JSON.parse(response.body)).to eq({ 'error' => 'Invalid Parameter Value', 'status' => 400 })
       end
     end
-
   end
 
   describe 'GET #show' do
