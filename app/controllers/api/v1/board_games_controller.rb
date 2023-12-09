@@ -28,7 +28,12 @@ class Api::V1::BoardGamesController < ApplicationController
 
   def all_by_params
     boardgames = filter_by_params(params)
-    render json: BoardGamesSerializer.new(boardgames)
+    serialized_response = BoardGamesSerializer.new(boardgames).serializable_hash
+    render json: {
+      current_page: params[:page] || "1",
+      total_pages: boardgames.total_pages.to_s,
+      data: serialized_response[:data]
+    }
   end
 
   private
