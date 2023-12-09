@@ -28,4 +28,4 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 /coverage
-/db/data/board_game_middleman_api_data.csv
+# /db/data/board_game_middleman_api_data.csv
