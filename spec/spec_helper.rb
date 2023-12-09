@@ -19,6 +19,7 @@ SimpleCov.start do
 end
 
 require 'webmock/rspec'
+require 'factory_bot_rails'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
