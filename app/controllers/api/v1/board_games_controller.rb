@@ -43,7 +43,7 @@ class Api::V1::BoardGamesController < ApplicationController
   end
 
   def find_by_min_players(min_players)
-    BoardGame.where("min_players > ?", min_players).where('rank > 0').order(:rank).limit(20)
+    BoardGame.where("min_players >= ?", min_players).order(:rank).limit(20)
   end
 
   def find_top_ranked
