@@ -13,13 +13,13 @@ FactoryBot.define do
     rating { rand(7.5..9.0).round(5) }
     year_published { rand(2000..2023) }
     sequence(:rank)
-    abstracts_rank { nil }
-    cgs_rank { nil }
-    childrens_games_rank { nil }
-    family_games_rank { nil }
-    party_games_rank { nil }
-    sequence(:strategy_games_rank) { |n| n + 20 }
-    thematic_rank { nil }
+    abstracts_rank { [1, 2, 3, nil].sample }
+    cgs_rank { [1, 2, 3, nil].sample }
+    childrens_games_rank { [1, 2, 3, nil].sample }
+    family_games_rank { [1, 2, 3, nil].sample }
+    party_games_rank { [1, 2, 3, nil].sample }
+    strategy_games_rank { [1, 2, 3, nil].sample }
+    thematic_rank { [1, 2, 3, nil].sample }
     wargames_rank { [nil, 1, 2].sample }
   end
 end
