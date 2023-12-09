@@ -1,12 +1,25 @@
 FactoryBot.define do
   factory :board_game_for_facade, class: 'BoardGame' do
-    bgg_id { Faker::Number.unique.number(digits: 5) }
-    min_players { Faker::Number.between(from: 1, to: 5) }
-    max_players { min_players + rand(0..2) }
-    min_playtime { Faker::Number.between(from: 30, to: 60) }
-    max_playtime { min_playtime + rand(0..30) }
-    categories { [Faker::Lorem.word, Faker::Lorem.word] }
-    cooperative { [true, false].sample }
-    description { Faker::Lorem.sentence }
+    sequence(:bgg_id) { |n| n }
+    title { 'Mock Board Game'}
+    image_path { "https://example.com/image.jpg" }
+    min_players { 2 }
+    max_players { 4 }
+    min_playtime { 30 }
+    max_playtime { 60 }
+    categories { "Category1, Category2" }
+    cooperative { false }
+    description { "Sample description" }
+    rating { 6.0 }
+    year_published { 2023 }
+    rank { 13 }
+    abstracts_rank { nil }
+    cgs_rank { nil }
+    childrens_games_rank { nil }
+    family_games_rank { nil }
+    party_games_rank { nil }
+    strategy_games_rank { 1 }
+    thematic_rank { nil }
+    wargames_rank { 2 }
   end
 end
