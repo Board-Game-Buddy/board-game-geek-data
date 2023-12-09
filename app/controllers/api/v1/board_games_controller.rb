@@ -1,6 +1,18 @@
 class Api::V1::BoardGamesController < ApplicationController
-  def index
-    render json: BoardGamesSerializer.new(filter(params))
+  ALLOWED_PARAMS = ["controller", "action", "subcategory", "cooperative", "max_players"].freeze
+
+  def carousel
+    unexpected_params = params.keys - ALLOWED_PARAMS
+    if !unexpected_params.empty?
+      render json: { error: "Unexpected Parameters", status: 404 }, status: 404
+    else
+      carousel_games = choose_carousel(params)
+      if carousel_games.nil?
+        render json: { error: "Invalid Parameter Value", status: 400 }, status: 400
+      else
+        render json: BoardGamesSerializer.new(carousel_games)
+      end
+    end
   end
 
   def show
@@ -16,31 +28,45 @@ class Api::V1::BoardGamesController < ApplicationController
 
   def all_by_params
     boardgames = filter_by_params(params)
-    render json: BoardGamesSerializer.new(boardgames)
+    serialized_response = BoardGamesSerializer.new(boardgames).serializable_hash
+    render json: {
+      current_page: params[:page] || "1",
+      total_pages: boardgames.total_pages.to_s,
+      data: serialized_response[:data]
+    }
   end
 
   private
   
-  def filter(params)
-    if params[:category]
-      # find games by ranked category
-      find_by_ranked_category(params[:category])
-    elsif params[:min_players]
-      if params[:max_players] == '2'
-        # find 2 player games
-        find_2_player_games
-      else
-        #find by min players
-        find_by_min_players(params[:min_players])
-      end
-    else
+  def choose_carousel(params)
+    allowed_params = ["controller", "action"]
+    unexpected_params = params.keys - allowed_params
+
+    if unexpected_params.empty?
       # find top ranked games
       find_top_ranked
+    elsif params[:subcategory]
+      begin
+        # find games by ranked category
+        find_by_ranked_category(params[:subcategory])
+      rescue ActiveRecord::StatementInvalid => e
+        render json: { error: "Unexpected Parameter Value", status: 400 }, status: 400
+      end
+    elsif params[:cooperative] == 'true'
+      # find cooperative games
+      find_cooperative_games
+    elsif params[:max_players] == '2'
+      # find 2 player games
+      find_2_player_games
     end
   end
 
-  def find_by_ranked_category(category)
-    BoardGame.order(category.to_sym).limit(20)
+  def find_by_ranked_category(subcategory)
+    BoardGame.order(subcategory.to_sym).limit(20)
+  end
+
+  def find_cooperative_games
+    BoardGame.where(cooperative: true).order(:rank).limit(20)
   end
 
   def find_2_player_games
@@ -55,12 +81,7 @@ class Api::V1::BoardGamesController < ApplicationController
     BoardGame.where(rank: (1..20)).order(:rank)
   end
 
-  # def top_20_by_rank
-  #   where('rank > 0').order(:rank).limit(20)
-  # end
-
   def filter_by_params(params)
-    # require 'pry';binding.pry
     categories = params[:categories]
     min_players = params[:min_players]
     max_players = params[:max_players]
