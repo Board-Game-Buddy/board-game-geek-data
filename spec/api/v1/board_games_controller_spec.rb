@@ -28,18 +28,23 @@ RSpec.describe Api::V1::BoardGamesController, type: :controller do
       end
     end
 
-    xcontext 'when filtering by category' do
-      it 'returns board games based on the specified category' do
-        create_list(:board_game, 10, categories: ['Category1'])
-        create_list(:board_game, 5, categories: ['Category2'])
-    
-        get :index, params: { categories: ['Category1'] }
-    
+    context 'when filtering by ranked category' do
+      it 'returns board games based on the specified ranked category' do
+        create(:board_game, party_games_rank: 1)
+        create(:board_game, party_games_rank: 2)
+        create(:board_game, party_games_rank: 3)
+        create_list(:board_game, 3, party_games_rank: nil)
+        
+        get :index, params: { category: 'party_games_rank' }
+        
         response_data = JSON.parse(response.body)
-    
+        
         expect(response).to have_http_status(:ok)
         expect(response_data['data']).to be_an(Array)
-        expect(response_data['data'].count).to eq(10)
+        
+        non_nil_party_games = response_data['data'].select { |game| game['attributes']['party_games_rank'].present? }
+        
+        expect(non_nil_party_games.count).to eq(3)
       end
     end
 
@@ -113,6 +118,40 @@ RSpec.describe Api::V1::BoardGamesController, type: :controller do
           'cgs_rank', 'childrens_games_rank', 'family_games_rank',
           'party_games_rank', 'strategy_games_rank', 'thematic_rank', 'wargames_rank'
         )
+      end
+    end
+  end
+
+  describe 'GET #all_by_params' do
+    context 'when filtering by parameters' do
+      it 'returns a successful response with a list of serialized board games based on the specified parameters' do
+        create_list(:board_game, 10, min_players: 2, max_players: 4, cooperative: true, categories: ['Strategy'])
+        create_list(:board_game, 5, min_players: 3, max_players: 5, cooperative: false, categories: ['Party'])
+        create_list(:board_game, 8, min_players: 1, max_players: 3, cooperative: true, categories: ['Family'])
+
+        get :all_by_params, params: { min_players: '2', max_players: '4', cooperative: true, categories: 'Strategy' }
+
+        response_data = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(response_data['data']).to be_an(Array)
+        expect(response_data['data'].count).to eq(10)
+
+        response_data['data'].each do |board_game|
+          attributes = board_game['attributes']
+
+          expect(attributes).to include(
+            'bgg_id', 'title', 'image_path', 'min_players', 'max_players',
+            'min_playtime', 'max_playtime', 'categories', 'cooperative',
+            'description', 'rating', 'year_published', 'rank', 'abstracts_rank',
+            'cgs_rank', 'childrens_games_rank', 'family_games_rank',
+            'party_games_rank', 'strategy_games_rank', 'thematic_rank', 'wargames_rank'
+          )
+          expect(attributes['min_players']).to be >= 2
+          expect(attributes['max_players']).to be <= 4
+          expect(attributes['cooperative']).to eq(true)
+          expect(attributes['categories']).to include('Strategy')
+        end
       end
     end
   end
