@@ -42,16 +42,16 @@ RSpec.describe Api::V1::BoardGamesController, type: :controller do
       end
 
     # dunno about this one
-    #   it 'returns a 400 status with an error message' do
-    #     allow_any_instance_of(Api::V1::BoardGamesController)
-    #       .to receive(:find_by_ranked_category)
-    #       .and_raise(ActiveRecord::StatementInvalid.new('Simulated error'))
+      it 'returns a 400 status with an error message' do
+        allow_any_instance_of(Api::V1::BoardGamesController)
+          .to receive(:find_by_ranked_category)
+          .and_raise(ActiveRecord::StatementInvalid.new('Simulated error'))
     
-    #     get :carousel, params: { subcategory: 1 }
-    
-    #     expect(response).to have_http_status(:bad_request)
-    #     expect(JSON.parse(response.body)).to eq({ 'error' => 'Unexpected Parameter Value', 'status' => 400 })
-    #   end
+        get :carousel, params: { subcategory: "hehehehehe" }
+
+        expect(response).to have_http_status(:bad_request)
+        expect(JSON.parse(response.body)).to eq({ 'error' => 'Invalid Parameter Value', 'status' => 400 })
+      end
     
     end
 

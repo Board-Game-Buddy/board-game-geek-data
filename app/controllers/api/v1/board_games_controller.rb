@@ -50,7 +50,7 @@ class Api::V1::BoardGamesController < ApplicationController
         # find games by ranked category
         find_by_ranked_category(params[:subcategory])
       rescue ActiveRecord::StatementInvalid => e
-        render json: { error: "Unexpected Parameter Value", status: 400 }, status: 400
+        return
       end
     elsif params[:cooperative] == 'true'
       # find cooperative games
