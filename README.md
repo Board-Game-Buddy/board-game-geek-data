@@ -1,5 +1,10 @@
 # board-game-geek-data API
-
+<section>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-original-wordmark.svg" height=45px;  />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rails/rails-original-wordmark.svg" height=45px; />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" height=45px;  />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rspec/rspec-original.svg" height=45px; />
+</section>
 ## About
 The board-game-geek-data API serves as a microservice, housing the boardgame database. This is an API created specifically for the BoardGameBuddy App based on the BoardGameGeek API. The purpose of of this api is to combine the data from 2 separate API endpoints from the BoardGameGeek API, so that we could retrieve the boardgame's data with a single call, search games by categories, and a handful of other functions rather than having to to make multiple calls to the BoardGameGeek API. 
 
