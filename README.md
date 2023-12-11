@@ -24,7 +24,7 @@ This API includes endpoints for the following functionality:
 - search by game parameters
 
 
-You can find the docs for this API [HERE]()
+You can find the docs for this API [HERE](https://github.com/Board-Game-Buddy/board-game-geek-data/blob/09a466120d1563f4a56417eb387a581d4a26f2dd/API_Docs.md)
 
 This API consumes from the BoardGameGeek API found [HERE](https://boardgamegeek.com/wiki/page/BGG_XML_API2).
 
