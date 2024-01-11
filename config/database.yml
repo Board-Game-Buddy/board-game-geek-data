@@ -79,8 +79,18 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
+# production:
+#   <<: *default
+#   database: board_game_geek_data_production
+#   username: board_game_geek_data
+#   password: <%= ENV["BOARD_GAME_GEEK_DATA_DATABASE_PASSWORD"] %>
+
 production:
   <<: *default
-  database: board_game_geek_data_production
-  username: board_game_geek_data
-  password: <%= ENV["BOARD_GAME_GEEK_DATA_DATABASE_PASSWORD"] %>
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  database: board_game_data_aws
+  username: postgres
+  password: Rails.application.credentials[:bgb_password]
+  host: board-game-data-aws.ch6oocyqeqsl.us-east-2.rds.amazonaws.com
