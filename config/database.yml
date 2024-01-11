@@ -92,5 +92,5 @@ production:
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   database: board_game_data_aws
   username: postgres
-  password: bgb2307!
+  password: Rails.application.credentials[:bgb_password]
   host: board-game-data-aws.ch6oocyqeqsl.us-east-2.rds.amazonaws.com
