@@ -10,7 +10,7 @@ class Api::V1::BoardGamesController < ApplicationController
       if carousel_games.nil?
         render json: { error: "Invalid Parameter Value", status: 400 }, status: 400
       else
-        render json: BoardGamesSerializer.new(carousel_games)
+        render json: carousel_games
       end
     end
   end
@@ -27,13 +27,23 @@ class Api::V1::BoardGamesController < ApplicationController
   end
 
   def all_by_params
-    boardgames = filter_by_params(params)
-    serialized_response = BoardGamesSerializer.new(boardgames).serializable_hash
-    render json: {
-      current_page: params[:page] || "1",
-      total_pages: boardgames.total_pages.to_s,
-      data: serialized_response[:data]
-    }
+    cached_data = Rails.cache.read("#{params}")
+    # require 'pry';binding.pry
+    
+    if !cached_data
+      boardgames = filter_by_params(params)
+      serialized_response = BoardGamesSerializer.new(boardgames).serializable_hash
+      data = render json: {
+        current_page: params[:page] || "1",
+        total_pages: boardgames.total_pages.to_s,
+        data: serialized_response[:data]
+      }
+      
+      Rails.cache.write("#{params}", data, expires_in: 1.week)
+      data
+    else
+      render json: cached_data
+    end
   end
 
   private
@@ -44,20 +54,52 @@ class Api::V1::BoardGamesController < ApplicationController
 
     if unexpected_params.empty?
       # find top ranked games
-      find_top_ranked
+      cached_data = Rails.cache.read('top_ranked')
+
+      if !cached_data
+        data = BoardGamesSerializer.new(find_top_ranked)
+        Rails.cache.write('top_ranked', data, expires_in: 1.week)
+        data
+      else
+        cached_data
+      end
     elsif params[:subcategory]
       begin
         # find games by ranked category
-        find_by_ranked_category(params[:subcategory])
+        cached_data = Rails.cache.read('subcategory')
+
+        if !cached_data
+          data = BoardGamesSerializer.new(find_by_ranked_category(params[:subcategory]))
+          Rails.cache.write('subcategory', data, expires_in: 1.week)
+          data
+        else
+          cached_data
+        end
       rescue ActiveRecord::StatementInvalid => e
         render json: { error: "Unexpected Parameter Value", status: 400 }, status: 400
       end
     elsif params[:cooperative] == 'true'
       # find cooperative games
-      find_cooperative_games
+      cached_data = Rails.cache.read('cooperative')
+
+      if !cached_data
+        data = BoardGamesSerializer.new(find_cooperative_games)
+        Rails.cache.write('cooperative', data, expires_in: 1.week)
+        data
+      else
+        cached_data
+      end
     elsif params[:max_players] == '2'
       # find 2 player games
-      find_2_player_games
+      cached_data = Rails.cache.read('two_player')
+
+      if !cached_data
+        data = BoardGamesSerializer.new(find_2_player_games)
+        Rails.cache.write('two_player', data, expires_in: 1.week)
+        data
+      else
+        cached_data
+      end
     end
   end
 
