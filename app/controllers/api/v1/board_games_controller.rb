@@ -115,10 +115,6 @@ class Api::V1::BoardGamesController < ApplicationController
     BoardGame.where(min_players: 2, max_players: 2).order(:rank).limit(20)
   end
 
-  # Unused method
-  # def find_by_min_players(min_players)
-  #   BoardGame.where("min_players >= ?", min_players).order(:rank).limit(20)
-  # end
 
   def find_top_ranked
     BoardGame.where(rank: (1..20)).order(:rank)
@@ -126,33 +122,21 @@ class Api::V1::BoardGamesController < ApplicationController
 
   def filter_by_params(params)
     board_games = BoardGame.all
+
+    if params[:categories]
+      categories = params[:categories].split(',')
+      board_games = board_games.where("categories ILIKE ?", "%#{categories.shift}%")
+
+      categories.each do |category|
+        board_games = board_games.or(BoardGame.where("categories ILIKE ?", "%#{category}%"))
+      end
+    end
+
     board_games = board_games.where('min_players >= ?', params[:min_players]) if params[:min_players]
     board_games = board_games.where('max_players <= ?', params[:max_players]) if params[:max_players]
     board_games = board_games.where('min_playtime >= ?', params[:min_playtime]) if params[:min_playtime]
     board_games = board_games.where('max_playtime <= ?', params[:max_playtime]) if params[:max_playtime]
     board_games = board_games.where(cooperative: params[:cooperative]) if params[:cooperative]
-
-    ### THIS SOLUTION IS EXCLUSIVE - GAMES THAT MATCH ALL CATEGORIES
-    # params[:categories].split(',').each do |category|
-    #   board_games = board_games.where("categories ILIKE ?", "%#{category}%")
-    # end if params[:categories]
-
-    ### THIS SOLUTION IS INCLUSIVE - GAMES THAT MATCH ANY CATEGORY
-    if params[:categories]
-      # make a new hash to store games by category
-      category_games = {}
-
-      # populate games by category
-      params[:categories].split(',').each do |category|
-        category_games[category.to_sym] = board_games.where("categories ILIKE ?", "%#{category}%")
-      end
-      
-      # combine all category games into single array
-      category_games = category_games.values.flatten.uniq
-
-      # use category games array to make an AR query
-      board_games = BoardGame.where(id: category_games.map {|game| game.id})
-    end
 
     board_games.order(:rank).paginate(page: params[:page])
   end
