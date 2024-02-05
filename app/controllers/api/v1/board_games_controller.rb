@@ -28,7 +28,6 @@ class Api::V1::BoardGamesController < ApplicationController
 
   def all_by_params
     cached_data = Rails.cache.read("#{params}")
-    # require 'pry';binding.pry
     
     if !cached_data
       boardgames = filter_by_params(params)
@@ -132,6 +131,7 @@ class Api::V1::BoardGamesController < ApplicationController
       end
     end
 
+    board_games = board_games.where("title ILIKE ?", "%#{params[:title]}%") if params[:title]
     board_games = board_games.where('min_players >= ?', params[:min_players]) if params[:min_players]
     board_games = board_games.where('max_players <= ?', params[:max_players]) if params[:max_players]
     board_games = board_games.where('min_playtime >= ?', params[:min_playtime]) if params[:min_playtime]
