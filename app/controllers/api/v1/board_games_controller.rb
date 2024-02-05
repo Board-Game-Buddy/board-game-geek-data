@@ -121,8 +121,10 @@ class Api::V1::BoardGamesController < ApplicationController
 
   def filter_by_params(params)
     board_games = BoardGame.all
-
-    if params[:categories]
+    
+    # CURRENT FE REQUEST HAS CATEGORIES AS AN EMPTY STRING
+    # && STATEMENT BELOW IS A QUICK FIX TO ACCEPT THAT ON BE
+    if params[:categories] && params[:categories] != ''
       categories = params[:categories].split(',')
       board_games = board_games.where("categories ILIKE ?", "%#{categories.shift}%")
 
