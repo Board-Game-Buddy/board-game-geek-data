@@ -140,6 +140,6 @@ class Api::V1::BoardGamesController < ApplicationController
     board_games = board_games.where('max_playtime <= ?', params[:max_playtime]) if params[:max_playtime]
     board_games = board_games.where(cooperative: params[:cooperative]) if params[:cooperative]
 
-    board_games.order(:rank).paginate(page: params[:page])
+    board_games.order(:id).order(:rank).paginate(page: params[:page])
   end
 end
